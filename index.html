@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Smart Crop Advisory</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <h2>Smart Crop Advisory System</h2>
+
+    <h3>Text Input</h3>
+    <input type="text" id="textInput" placeholder="Describe your problem">
+    <button onclick="sendText()">Submit</button>
+
+    <h3>Voice Input</h3>
+    <input type="file" id="voiceInput" accept="audio/*">
+    <button onclick="sendVoice()">Submit</button>
+
+    <h3>Photo Input</h3>
+    <input type="file" id="photoInput" accept="image/*">
+    <button onclick="sendPhoto()">Submit</button>
+
+    <h3>Advice:</h3>
+    <p id="advice"></p>
+    <audio id="audioPlayer" controls></audio>
+
+<script>
+function playAudio(audioURL) {
+    let player = document.getElementById("audioPlayer");
+    player.src = audioURL;
+    player.play();
+}
+
+function sendText() {
+    let text = document.getElementById("textInput").value;
+    fetch('/text_input', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: 'text=' + encodeURIComponent(text)
+    })
+    .then(res => res.json())
+    .then(data => {
+        document.getElementById("advice").innerText = data.advice;
+        playAudio(data.audio);
+    });
+}
+
+function sendVoice() {
+    let file = document.getElementById("voiceInput").files[0];
+    let formData = new FormData();
+    formData.append("voice", file);
+
+    fetch('/voice_input', { method: 'POST', body: formData })
+    .then(res => res.json())
+    .then(data => {
+        document.getElementById("advice").innerText = data.advice;
+        playAudio(data.audio);
+    });
+}
+
+function sendPhoto() {
+    let file = document.getElementById("photoInput").files[0];
+    let formData = new FormData();
+    formData.append("photo", file);
+
+    fetch('/photo_input', { method: 'POST', body: formData })
+    .then(res => res.json())
+    .then(data => {
+        document.getElementById("advice").innerText = data.advice;
+        playAudio(data.audio);
+    });
+}
+</script>
+</body>
+</html>
